@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoWise Print - Paid Jobs Archive</title>
+    <style>
+        :root {
+            --bg-color: #f4f5f7;
+            --card-bg: #ffffff;
+            --text-main: #172b4d;
+            --text-muted: #5e6c84;
+            --primary: #0052cc;
+            --primary-hover: #0043a6;
+            --border-color: #dfe1e6;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Navigation Bar */
+        nav {
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        nav a {
+            text-decoration: none;
+            color: var(--text-muted);
+            margin-right: 15px;
+            font-size: 16px;
+        }
+        nav a:hover { color: var(--primary); }
+        nav a.active { color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 4px; }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        h1 { font-size: 24px; margin: 0; }
+
+        .controls-bar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input {
+            padding: 8px;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            background-color: white;
+            color: var(--text-main);
+        }
+        .search-input:focus { border-color: var(--primary); outline: none; }
+
+        .btn-secondary {
+            background-color: #ebecf0;
+            color: var(--text-main);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .btn-secondary:hover { background-color: #dfe1e6; }
+        .btn-secondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Data Table Styles */
+        table {
+            width: 100%;
+            background-color: var(--card-bg);
+            border-collapse: collapse;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(9, 30, 66, 0.25);
+        }
+        th, td {
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        th {
+            background-color: #ebecf0;
+            color: var(--text-muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            cursor: pointer;
+            user-select: none;
+        }
+        th:hover { background-color: #dfe1e6; color: var(--text-main); }
+        td { font-size: 14px; }
+        tr:hover { background-color: #fafbfc; }
+
+        .status-badge {
+            background-color: #e3fcef;
+            color: #006644;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="/">Production Pipeline</a>
+        <a href="/customers">Client Directory</a>
+        <a href="/paid_jobs" class="active">Paid Archive</a>
+    </nav>
+
+    <header>
+        <h1>Paid Jobs Archive</h1>
+        <div class="controls-bar">
+            <!-- General Search Bar -->
+            <input type="text" id="searchBar" class="search-input" onkeyup="filterTable()" placeholder="Search archive..." style="width: 240px;">
+            <button class="btn-secondary" id="returnBtn" onclick="returnSelected()" disabled>Return Selected</button>
+        </div>
+    </header>
+
+    <!-- Paid Jobs Data Table -->
+    <table id="paidJobsTable">
+        <thead>
+            <tr>
+                <th style="width: 40px; cursor: default;"><input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)"></th>
+                <th onclick="sortTable('paidJobsTable', 1, 'number')">Job No. ⌁</th>
+                <th onclick="sortTable('paidJobsTable', 2, 'text')">Company Name ⌁</th>
+                <th onclick="sortTable('paidJobsTable', 3, 'text')">Job Title ⌁</th>
+                <th onclick="sortTable('paidJobsTable', 4, 'text')">Finished Size ⌁</th>
+                <th onclick="sortTable('paidJobsTable', 5, 'text')">Paper Stock ⌁</th>
+                <th onclick="sortTable('paidJobsTable', 6, 'date')">Delivery Date ⌁</th>
+                <th onclick="sortTable('paidJobsTable', 7, 'text')">Status ⌁</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+            <tr>
+                <td><input type="checkbox" class="job-checkbox" value="{{ job.job_number }}" onclick="updateButtonState()"></td>
+                <td style="font-weight: bold; color: var(--text-muted);">{{ job.job_number }}</td>
+                <td style="font-weight: bold;">{{ job.company_name if job.company_name else '--' }}</td>
+                <td>{{ job.title }}</td>
+                <td>{{ job.finished_size if job.finished_size else '--' }}</td>
+                <td>{{ job.paper_stock if job.paper_stock else '--' }}</td>
+                <td>{{ job.delivery_date if job.delivery_date else '--' }}</td>
+                <td><span class="status-badge">{{ job.current_stage }}</span></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted);">No archived paid jobs found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <script>
+        // --- Column Sorting Logic ---
+        let sortDirection = {};
+        function sortTable(tableId, colIndex, dataType) {
+            const table = document.getElementById(tableId);
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            
+            if (rows.length === 1 && rows[0].cells.length <= 1) return;
+
+            sortDirection[colIndex] = !sortDirection[colIndex];
+            let ascending = sortDirection[colIndex];
+
+            rows.sort((rowA, rowB) => {
+                let cellA = rowA.cells[colIndex].innerText.trim();
+                let cellB = rowB.cells[colIndex].innerText.trim();
+
+                if (dataType === 'number') {
+                    let numA = parseFloat(cellA.replace(/[^0-9.-]+/g,"")) || 0;
+                    let numB = parseFloat(cellB.replace(/[^0-9.-]+/g,"")) || 0;
+                    return ascending ? numA - numB : numB - numA;
+                } else if (dataType === 'date') {
+                    let dateA = cellA && cellA !== '--' ? new Date(cellA) : new Date(0);
+                    let dateB = cellB && cellB !== '--' ? new Date(cellB) : new Date(0);
+                    return ascending ? dateA - dateB : dateB - dateA;
+                } else {
+                    return ascending ? cellA.localeCompare(cellB) : cellB.localeCompare(cellA);
+                }
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        }
+
+        // --- Live Search Filter ---
+        function filterTable() {
+            let input = document.getElementById('searchBar').value.toLowerCase();
+            let rows = document.querySelectorAll('#paidJobsTable tbody tr');
+
+            rows.forEach(row => {
+                if (row.cells.length <= 1) return;
+                let text = row.innerText.toLowerCase();
+                if (text.includes(input)) {
+                    row.style.display = "";
+                } else {
+                    row.style.display = "none";
+                }
+            });
+        }
+
+        // Select/Deselect all checkboxes
+        function toggleSelectAll(master) {
+            const checkboxes = document.querySelectorAll('.job-checkbox');
+            checkboxes.forEach(cb => cb.checked = master.checked);
+            updateButtonState();
+        }
+
+        function updateButtonState() {
+            const checkedBoxes = document.querySelectorAll('.job-checkbox:checked');
+            const returnBtn = document.getElementById('returnBtn');
+            returnBtn.disabled = checkedBoxes.length === 0;
+        }
+
+        function returnSelected() {
+            const checkedBoxes = document.querySelectorAll('.job-checkbox:checked');
+            const jobNumbers = Array.from(checkedBoxes).map(cb => cb.value);
+
+            if (jobNumbers.length === 0) return;
+
+            let confirmed = confirm(`Are you sure you want to return ${jobNumbers.length} selected job(s) back to the active pipeline ("booked in" stage)?`);
+            if (!confirmed) return;
+
+            fetch('/return_to_pipeline', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ job_numbers: jobNumbers })
+            }).then(res => res.json()).then(data => {
+                if(data.success) {
+                    window.location.reload();
+                } else {
+                    alert("Error returning jobs to pipeline: " + (data.error || 'Unknown error'));
+                }
+            });
+        }
+    </script>
+</body>
+</html>
