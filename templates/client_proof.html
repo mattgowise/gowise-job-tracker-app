@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Your Proof | GoWise Print</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Roboto', sans-serif; background-color: #f4f5f7; color: #172b4d; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; }
+        header { background-color: #ffffff; padding: 20px 40px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 800; font-size: 20px; color: #fd13f0; }
+        .job-details { text-align: right; }
+        .job-title { font-weight: 600; font-size: 16px; margin-bottom: 4px; }
+        .client-name { color: #5e6c84; font-size: 14px; }
+        .workspace { flex-grow: 1; padding: 30px; display: flex; justify-content: center; align-items: center; }
+        .controls { width: 450px; background: #fff; padding: 40px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); text-align: center; }
+        h2 { margin-top: 0; font-size: 22px; border-bottom: 1px solid #dfe1e6; padding-bottom: 15px; margin-bottom: 20px;}
+        p { font-size: 15px; color: #5e6c84; line-height: 1.6; margin-bottom: 30px; }
+        .btn { display: block; width: 100%; padding: 14px; border: none; border-radius: 4px; font-weight: 600; font-size: 15px; cursor: pointer; margin-bottom: 15px; transition: opacity 0.2s; text-align: center; }
+        .btn:hover { opacity: 0.9; }
+        .btn-approve { background-color: #36B37E; color: white; }
+        .btn-reject { background-color: #ff991f; color: #172b4d; }
+        .completed-msg { display: none; background: #e3fcef; color: #006644; padding: 25px; border-radius: 4px; font-weight: 600; text-align: center; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">GoWise Print</div>
+        <div class="job-details">
+            <div class="job-title">{{ job.title }}</div>
+            <div class="client-name">{{ job.company_name }}</div>
+        </div>
+    </header>
+    <div class="workspace">
+        <div class="controls" id="action-panel">
+            <h2>Record Your Decision</h2>
+            <p>Please review the PDF proof attached to your email. Check all spelling, dimensions, and layout details carefully. Once approved, this file will proceed directly to the presses.</p>
+            <button class="btn btn-approve" onclick="submitDecision('approved')">✅ Approve for Print</button>
+            <button class="btn btn-reject" onclick="submitDecision('amends')">❌ Request Changes</button>
+        </div>
+        <div class="controls completed-msg" id="success-panel">
+            Thank you!<br><span style="font-size: 14px; font-weight: 400; color: #5e6c84; display: block; margin-top: 10px;">We have logged your decision and will be in touch shortly.</span>
+        </div>
+    </div>
+
+    <script>
+        function submitDecision(decisionStage) {
+            const token = "{{ job.proof_token }}";
+            
+            document.querySelectorAll('.btn').forEach(b => b.disabled = true);
+
+            fetch('/api/proof_decision', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: token, stage: decisionStage })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('action-panel').style.display = 'none';
+                    
+                    const successPanel = document.getElementById('success-panel');
+                    successPanel.style.display = 'block';
+                    
+                    if (decisionStage === 'amends') {
+                        successPanel.style.backgroundColor = '#fff0b3'; // Warning yellow
+                        successPanel.style.color = '#172b4d';
+                        successPanel.innerHTML = `Action Required<br><span style="font-size: 15px; font-weight: 400; display: block; margin-top: 10px;">We have logged your request for changes.<br><br><b>Please reply directly to the email we sent you</b> with a detailed list of your amends so our artwork team can get started.</span>`;
+                    } else {
+                        successPanel.innerHTML = `Approved!<br><span style="font-size: 15px; font-weight: 400; color: #5e6c84; display: block; margin-top: 10px;">We have logged your approval. This job will now be queued for the presses.</span>`;
+                    }
+                } else {
+                    alert("There was an error saving your decision. Please contact us directly.");
+                    document.querySelectorAll('.btn').forEach(b => b.disabled = false);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

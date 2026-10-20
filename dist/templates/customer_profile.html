@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ customer.company_name }} - Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #2b2b2b; /* Dark theme background */
+            --col-bg: #44384a; 
+            --card-bg: #ffffff;
+            --text-main: #172b4d;
+            --text-muted: #5e6c84;
+            --text-light: #ffffff;
+            --primary: #fd13f0; /* Gowise Brand Magenta */
+            --primary-hover: #d610cb;
+            --border-color: #555555;
+        }
+
+        body {
+            font-family: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-light);
+            margin: 0;
+            padding: 20px 30px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Top Logo & Navigation Alignment */
+        .top-header-container {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+
+        .logo-placeholder {
+            width: 200px;
+            height: auto;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            font-weight: 400;
+            gap: 15px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #aaaaaa;
+            font-size: 15px;
+            transition: color 0.2s;
+        }
+        nav a:hover { color: var(--primary); }
+        nav a.active { color: var(--primary); font-weight: 600; }
+        .nav-divider {
+            color: #aaaaaa;
+            user-select: none;
+        }
+
+        /* Profile Header & Buttons */
+        .profile-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
+        .profile-header h1 { font-size: 28px; margin: 0 0 8px 0; color: var(--text-light); font-weight: 300; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .btn-primary { background-color: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; transition: background-color 0.2s; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #3d3d3d; color: var(--text-light); border: 1px solid var(--border-color); padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: 600; font-size: 14px; text-decoration: none; margin-left: 10px; transition: background-color 0.2s; }
+        .btn-secondary:hover { background-color: #4d4d4d; }
+
+        /* Contact Details Split Grid */
+        .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .contact-card { background-color: #333333; border-radius: 4px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); border-left: 6px solid var(--primary); }
+        .contact-card h3 { margin-top: 0; font-size: 13px; text-transform: uppercase; color: var(--text-light); letter-spacing: 0.5px; border-bottom: 1px solid var(--border-color); padding-bottom: 8px; margin-bottom: 15px; }
+        .contact-detail { margin-bottom: 8px; font-size: 14px; color: #dddddd; }
+        .contact-detail strong { color: #aaaaaa; display: inline-block; width: 80px; }
+        .contact-detail a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
+        .contact-detail a:hover { text-decoration: underline; }
+
+        /* Table Styles */
+        h2 { font-size: 20px; margin-bottom: 15px; font-weight: 400; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .table-container { width: 100%; overflow-x: auto; border-radius: 6px; box-shadow: 0 4px 15px rgba(0,0,0,0.4); background-color: #333333; margin-bottom: 30px; }
+        /* Customized Webkit Scrollbar */
+        .table-container::-webkit-scrollbar { width: 10px; height: 10px; }
+        .table-container::-webkit-scrollbar-track { background: #1e1e1e; border-radius: 5px; }
+        .table-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th, td { text-align: left; padding: 15px 20px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: var(--primary); color: #ffffff; font-size: 13px; text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px; }
+        td { font-size: 14px; color: var(--text-light); }
+        tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.03); }
+        tr:hover { background-color: rgba(253, 19, 240, 0.1); }
+
+        /* Dynamic Status Badges */
+        .status-badge { background-color: rgba(54, 179, 126, 0.15); color: #36B37E; border: 1px solid #36B37E; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-badge.pending { background-color: rgba(255, 171, 0, 0.15); color: #FFAB00; border: 1px solid #FFAB00; }
+
+        /* Notes Section */
+        .notes-section h2 { margin-top: 10px; }
+        textarea.notes-box { width: 100%; height: 150px; padding: 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 14px; font-family: inherit; resize: vertical; box-sizing: border-box; background-color: #3d3d3d; color: white; transition: border-color 0.2s; }
+        textarea.notes-box:focus { border-color: var(--primary); outline: none; }
+        textarea.notes-box::placeholder { color: #888; }
+        .save-indicator { font-size: 12px; color: #36B37E; font-weight: bold; display: none; margin-top: 8px; }
+
+        /* Modal Styles (Kept light for clear form reading) */
+        .modal { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); overflow-y: auto; }
+        .modal-content { background-color: #ffffff; color: var(--text-main); margin: 5% auto; padding: 30px; border-radius: 8px; width: 600px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .close { color: #888; float: right; font-size: 28px; font-weight: bold; cursor: pointer; line-height: 1; }
+        .close:hover { color: var(--primary); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .form-section-title { grid-column: span 2; font-size: 14px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; border-bottom: 1px solid #dfe1e6; padding-bottom: 5px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--text-muted); }
+        .form-group input { width: 100%; padding: 10px; border: 2px solid #dfe1e6; border-radius: 4px; box-sizing: border-box; font-size: 14px; }
+        .form-group input:focus { border-color: var(--primary); outline: none; }
+    </style>
+</head>
+<body>
+
+    <!-- Top Branding & Navigation -->
+    <div class="top-header-container">
+        <!-- Replace src with your actual logo path -->
+        <img src="gowise-logo.png" alt="GoWise Print Logo" class="logo-placeholder" onerror="this.style.display='none';">
+        <nav>
+            <a href="/">Production Pipeline</a>
+            <span class="nav-divider">|</span>
+            <a href="/customers" class="active">Client Directory</a>
+            <span class="nav-divider">|</span>
+            <a href="/job_bible">Job Bible</a>
+            <span class="nav-divider">|</span>
+            <a href="/job_archive">Job Archive</a>
+        </nav>
+    </div>
+
+    <div class="profile-header">
+        <h1>{{ customer.company_name }}</h1>
+        <div>
+            <button class="btn-primary" onclick="openEditModal()">Edit Details</button>
+            <a href="/customers" class="btn-secondary">&larr; Back to Directory</a>
+        </div>
+    </div>
+
+    <!-- Contact Details Split Grid -->
+    <div class="contact-grid">
+        <div class="contact-card">
+            <h3>Primary Contact</h3>
+            <div class="contact-detail"><strong>Name:</strong> {{ customer.contact_name if customer.contact_name else '--' }}</div>
+            <div class="contact-detail"><strong>Title:</strong> {{ customer.primary_job_title if customer.primary_job_title else '--' }}</div>
+            <div class="contact-detail"><strong>Phone:</strong> {% if customer.primary_phone %}<a href="tel:{{ customer.primary_phone }}">{{ customer.primary_phone }}</a>{% else %}--{% endif %}</div>
+            <div class="contact-detail"><strong>Email:</strong> {% if customer.email %}<a href="mailto:{{ customer.email }}">{{ customer.email }}</a>{% else %}--{% endif %}</div>
+        </div>
+
+        <div class="contact-card">
+            <h3>Secondary Contact</h3>
+            <div class="contact-detail"><strong>Name:</strong> {{ customer.secondary_contact_name if customer.secondary_contact_name else '--' }}</div>
+            <div class="contact-detail"><strong>Title:</strong> {{ customer.secondary_job_title if customer.secondary_job_title else '--' }}</div>
+            <div class="contact-detail"><strong>Phone:</strong> {% if customer.secondary_phone %}<a href="tel:{{ customer.secondary_phone }}">{{ customer.secondary_phone }}</a>{% else %}--{% endif %}</div>
+            <div class="contact-detail"><strong>Email:</strong> {% if customer.secondary_email %}<a href="mailto:{{ customer.secondary_email }}">{{ customer.secondary_email }}</a>{% else %}--{% endif %}</div>
+        </div>
+    </div>
+
+    <!-- Job History Table -->
+    <h2>Job History</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Job No.</th>
+                    <th>Title</th>
+                    <th>Size</th>
+                    <th>Stock</th>
+                    <th>Current Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for job in jobs %}
+                <tr>
+                    <td style="font-weight: bold; color: var(--primary);">{{ job.job_number }}</td>
+                    <td style="font-weight: 600;">{{ job.title }}</td>
+                    <td>{{ job.finished_size if job.finished_size else '--' }}</td>
+                    <td>{{ job.paper_stock if job.paper_stock else '--' }}</td>
+                    <td>
+                        <span class="status-badge {% if job.current_stage not in ['invoiced', 'paid', 'printed'] %}pending{% endif %}">
+                            {{ job.current_stage }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" style="text-align: center; color: #888; padding: 30px;">This client has no recorded jobs yet.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Live Notes Area -->
+    <div class="notes-section">
+        <h2>Client Notes</h2>
+        <textarea class="notes-box" id="clientNotes" onblur="saveNotes()" placeholder="Type notes here... They will save automatically when you click away.">{{ customer.notes if customer.notes else '' }}</textarea>
+        <div id="saveIndicator" class="save-indicator">✓ Notes saved securely</div>
+    </div>
+
+    <input type="hidden" id="currentCustomerId" value="{{ customer.id }}">
+
+    <!-- EDIT CLIENT MODAL -->
+    <div id="editClientModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2 style="margin-top: 0; margin-bottom: 20px; color: var(--primary);">Edit Client Details</h2>
+            <form id="editClientForm">
+                
+                <div class="form-group" style="margin-bottom: 20px;">
+                    <label>Company Name *</label>
+                    <input type="text" id="edit_company_name" value="{{ customer.company_name }}" required>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-section-title">Primary Contact</div>
+                    <div class="form-group"><label>Name</label><input type="text" id="edit_contact_name" value="{{ customer.contact_name if customer.contact_name else '' }}"></div>
+                    <div class="form-group"><label>Job Title</label><input type="text" id="edit_primary_job_title" value="{{ customer.primary_job_title if customer.primary_job_title else '' }}"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="edit_email" value="{{ customer.email if customer.email else '' }}"></div>
+                    <div class="form-group"><label>Phone</label><input type="text" id="edit_primary_phone" value="{{ customer.primary_phone if customer.primary_phone else '' }}"></div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-section-title">Secondary Contact</div>
+                    <div class="form-group"><label>Name</label><input type="text" id="edit_secondary_contact_name" value="{{ customer.secondary_contact_name if customer.secondary_contact_name else '' }}"></div>
+                    <div class="form-group"><label>Job Title</label><input type="text" id="edit_secondary_job_title" value="{{ customer.secondary_job_title if customer.secondary_job_title else '' }}"></div>
+                    <div class="form-group"><label>Email</label><input type="email" id="edit_secondary_email" value="{{ customer.secondary_email if customer.secondary_email else '' }}"></div>
+                    <div class="form-group"><label>Phone</label><input type="text" id="edit_secondary_phone" value="{{ customer.secondary_phone if customer.secondary_phone else '' }}"></div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 10px;">Update Client</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Live-Save Notes ---
+        function saveNotes() {
+            const customerId = document.getElementById('currentCustomerId').value;
+            const notesText = document.getElementById('clientNotes').value;
+            const indicator = document.getElementById('saveIndicator');
+
+            fetch('/update_notes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ customer_id: customerId, notes: notesText })
+            }).then(res => res.json()).then(data => {
+                if(data.success) {
+                    indicator.style.display = 'block';
+                    setTimeout(() => { indicator.style.display = 'none'; }, 2000);
+                } else {
+                    alert("Failed to save notes.");
+                }
+            });
+        }
+
+        // --- Edit Modal Logic ---
+        const editModal = document.getElementById("editClientModal");
+        function openEditModal() { editModal.style.display = "block"; }
+        function closeEditModal() { editModal.style.display = "none"; }
+        
+        window.onclick = function(event) { if (event.target == editModal) closeEditModal(); }
+
+        document.getElementById('editClientForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const customerId = document.getElementById('currentCustomerId').value;
+            const clientData = {
+                customer_id: customerId,
+                company_name: document.getElementById('edit_company_name').value,
+                contact_name: document.getElementById('edit_contact_name').value,
+                primary_job_title: document.getElementById('edit_primary_job_title').value,
+                email: document.getElementById('edit_email').value,
+                primary_phone: document.getElementById('edit_primary_phone').value,
+                secondary_contact_name: document.getElementById('edit_secondary_contact_name').value,
+                secondary_job_title: document.getElementById('edit_secondary_job_title').value,
+                secondary_email: document.getElementById('edit_secondary_email').value,
+                secondary_phone: document.getElementById('edit_secondary_phone').value
+            };
+
+            fetch('/edit_customer', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(clientData)
+            }).then(res => res.json()).then(data => {
+                if(data.success) window.location.reload();
+                else alert("Error saving details.");
+            });
+        });
+    </script>
+</body>
+</html>
